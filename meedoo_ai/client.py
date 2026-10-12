@@ -5,6 +5,7 @@ The main client class that provides access to all API endpoints.
 """
 
 import json
+import os
 import time
 from typing import Any, Generator, Optional
 
@@ -319,6 +320,7 @@ class MeeDooClient:
         self.chat = _Chat(self)
         self.models = Models(self)
         self.usage = Usage(self)
+        self.files = Files(self)
 
     def _get_headers(self) -> dict:
         return {
@@ -343,6 +345,19 @@ class MeeDooClient:
         for attempt in range(self.max_retries + 1):
             try:
                 resp = requests.post(url, json=payload, headers=self._get_headers(), timeout=self.timeout)
+                return self._handle_response(resp)
+            except requests.exceptions.ConnectionError:
+                if attempt < self.max_retries:
+                    time.sleep(self.retry_delay * (2 ** attempt))
+                else:
+                    raise APIError(f"Connection failed after {self.max_retries} retries")
+
+    def _post_multipart(self, path: str, files: dict, fields: dict) -> dict:
+        url = f"{self.base_url}{path}"
+        headers = {"Authorization": f"Bearer {self.api_key}"}
+        for attempt in range(self.max_retries + 1):
+            try:
+                resp = requests.post(url, files=files, data=fields, headers=headers, timeout=self.timeout)
                 return self._handle_response(resp)
             except requests.exceptions.ConnectionError:
                 if attempt < self.max_retries:
@@ -378,6 +393,88 @@ class MeeDooClient:
     def health(self) -> HealthResponse:
         resp = requests.get(f"{self.base_url.rstrip('/api')}/health", timeout=self.timeout)
         return HealthResponse.from_dict(resp.json())
+
+
+class Files:
+    """Files resource — upload, list, get, download, and delete files."""
+
+    def __init__(self, client: "MeeDooClient"):
+        self._client = client
+
+    def upload(
+        self,
+        file_path: str,
+        metadata: Optional[dict] = None,
+        process: bool = False,
+    ) -> dict:
+        """
+        Upload a file to the MeeDoo API.
+
+        Args:
+            file_path: Path to the file on disk
+            metadata: Optional metadata dict (sent as JSON string)
+            process: Whether to process the file on the server
+
+        Returns:
+            Dict with file metadata (id, filename, meta, ...)
+        """
+        filename = os.path.basename(file_path)
+        with open(file_path, "rb") as f:
+            data: dict = {"file": (filename, f)}
+            form_fields: dict = {"process": str(process).lower()}
+            if metadata is not None:
+                form_fields["metadata"] = json.dumps(metadata)
+            return self._client._post_multipart("/v1/files/", data, form_fields)
+
+    def list(self) -> dict:
+        return self._client._get("/v1/files/")
+
+    def get(self, file_id: str) -> dict:
+        return self._client._get(f"/v1/files/{file_id}")
+
+    def get_content(self, file_id: str) -> bytes:
+        """Download the raw content of a file. Returns bytes."""
+        url = f"{self._client.base_url}/v1/files/{file_id}/content"
+        headers = {"Authorization": f"Bearer {self._client.api_key}"}
+        resp = requests.get(url, headers=headers, timeout=self._client.timeout)
+        if resp.status_code == 401:
+            raise AuthenticationError("Invalid API key", 401)
+        if resp.status_code == 429:
+            raise RateLimitError("Rate limit exceeded", 429)
+        if resp.status_code >= 400:
+            try:
+                body = resp.json()
+            except Exception:
+                body = {"detail": resp.text}
+            raise APIError(
+                body.get("detail", f"HTTP {resp.status_code}"),
+                resp.status_code,
+                body,
+            )
+        return resp.content
+
+    def delete(self, file_id: str) -> dict:
+        url = f"{self._client.base_url}/v1/files/{file_id}"
+        headers = self._client._get_headers()
+        resp = requests.delete(url, headers=headers, timeout=self._client.timeout)
+        if resp.status_code == 401:
+            raise AuthenticationError("Invalid API key", 401)
+        if resp.status_code == 429:
+            raise RateLimitError("Rate limit exceeded", 429)
+        if resp.status_code >= 400:
+            try:
+                body = resp.json()
+            except Exception:
+                body = {"detail": resp.text}
+            raise APIError(
+                body.get("detail", f"HTTP {resp.status_code}"),
+                resp.status_code,
+                body,
+            )
+        try:
+            return resp.json()
+        except Exception:
+            return {"status": "deleted", "id": file_id}
 
 
 class _Chat:
