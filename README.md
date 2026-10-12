@@ -2,9 +2,16 @@
 
 > The easiest way to add AI to your Python application. No PhD required.
 
+[![PyPI version](https://img.shields.io/pypi/v/meedoo-ai.svg)](https://pypi.org/project/meedoo-ai/)
+[![Python 3.9+](https://img.shields.io/pypi/pyversions/meedoo-ai.svg)](https://pypi.org/project/meedoo-ai/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
 ## What is this?
 
 MeeDoo is an AI platform (like ChatGPT, but yours). This SDK lets you talk to MeeDoo's AI from your Python code in **3 lines**.
+
+**PyPI**: https://pypi.org/project/meedoo-ai/
+**GitHub**: https://github.com/MeeDoo-AI/SDK_Python
 
 ## Installation
 

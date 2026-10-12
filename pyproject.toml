@@ -28,8 +28,9 @@ dependencies = ["requests>=2.28.0"]
 [project.urls]
 Homepage = "https://meedoo.co"
 Documentation = "https://meedoo.co/documentation/chat-completions"
-Repository = "https://github.com/meedoo-ai/meedoo-py"
-Issues = "https://github.com/meedoo-ai/meedoo-py/issues"
+Repository = "https://github.com/MeeDoo-AI/SDK_Python"
+Issues = "https://github.com/MeeDoo-AI/SDK_Python/issues"
+PyPI = "https://pypi.org/project/meedoo-ai/"
 
 [tool.setuptools.packages.find]
 where = ["."]
