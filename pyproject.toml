@@ -4,13 +4,13 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "meedoo-ai"
-version = "1.0.0"
-description = "Official MeeDoo AI Python SDK — Chat Completions, Models, MeeJudge, and more"
+version = "1.0.1"
+description = "Official MeeDoo AI Python SDK — Chat Completions, Models, and more"
 readme = "README.md"
 license = {text = "MIT"}
 requires-python = ">=3.9"
 authors = [{name = "MeeDoo", email = "contact@meedoo.co"}]
-keywords = ["meedoo", "ai", "llm", "chat", "completions", "judge", "sdk"]
+keywords = ["meedoo", "ai", "llm", "chat", "completions", "sdk"]
 classifiers = [
     "Development Status :: 5 - Production/Stable",
     "Intended Audience :: Developers",

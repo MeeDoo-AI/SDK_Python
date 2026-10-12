@@ -23,8 +23,6 @@ from .models import (
     ConfigResponse,
     CreditsResponse,
     HealthResponse,
-    JudgeResult,
-    JudgeStatus,
     ModelList,
     UsageResponse,
 )
@@ -104,7 +102,7 @@ class ChatCompletions:
             features: {"web_search": True, "memory": True, "code_interpreter": True, ...}
             tool_ids: Tool function IDs to invoke
             tool_servers: Direct tool server connections
-            tools: Native function-calling tool specs (OpenAI format)
+            tools: Native function-calling tool specs (standard API format)
             tool_choice: "auto", "none", or specific tool
             function_calling: "native" or "default"
             stream_response: Force streaming on/off
@@ -282,73 +280,6 @@ class Usage:
         return UsageResponse.from_dict(resp)
 
 
-class Judge:
-    """MeeJudge resource — access the AI judge for decision-making."""
-
-    def __init__(self, client: "MeeDooClient"):
-        self._client = client
-
-    def status(self) -> JudgeStatus:
-        resp = self._client._get("/v1/judge/status")
-        return JudgeStatus.from_dict(resp)
-
-    def decide(self, state: Any, questions: dict, model: Optional[str] = None) -> JudgeResult:
-        payload = {"state": state, "questions": questions}
-        if model:
-            payload["model"] = model
-        return JudgeResult.from_dict(self._client._post("/v1/judge/decide", payload))
-
-    def noul(self, state: Any, instructions: str, criteria: Optional[dict] = None) -> float:
-        payload = {"state": state, "instructions": instructions}
-        if criteria:
-            payload["criteria"] = criteria
-        return self._client._post("/v1/judge/noul", payload).get("probability", 0.5)
-
-    def choice(self, state: Any, instructions: str, criteria: dict) -> dict:
-        payload = {"state": state, "instructions": instructions, "criteria": criteria}
-        return self._client._post("/v1/judge/choice", payload)
-
-    def score(self, state: Any, instructions: str, levels: list) -> dict:
-        payload = {"state": state, "instructions": instructions, "levels": levels}
-        return self._client._post("/v1/judge/score", payload)
-
-    def should_search_web(self, user_message: str) -> bool:
-        return self._client._post("/v1/judge/should-search-web", {"user_message": user_message}).get("should_search", False)
-
-    def detect_injection(self, user_message: str) -> dict:
-        return self._client._post("/v1/judge/detect-injection", {"user_message": user_message})
-
-    def moderate(self, text: str) -> dict:
-        return self._client._post("/v1/judge/moderate", {"text": text})
-
-    def detect_spam(self, message: str, user_history: str = "") -> dict:
-        return self._client._post("/v1/judge/detect-spam", {"message": message, "user_history": user_history})
-
-    def validate_response(self, user_message: str, llm_response: str, sources: str = "") -> dict:
-        return self._client._post("/v1/judge/validate-response", {"user_message": user_message, "llm_response": llm_response, "sources": sources})
-
-    def validate_schema(self, json_output: str, schema_description: str) -> dict:
-        return self._client._post("/v1/judge/validate-schema", {"json_output": json_output, "schema_description": schema_description})
-
-    def filter_memory(self, information: str, conversation_context: str = "") -> dict:
-        return self._client._post("/v1/judge/filter-memory", {"information": information, "conversation_context": conversation_context})
-
-    def is_prayer_times(self, user_message: str) -> bool:
-        return self._client._post("/v1/judge/is-prayer-times", {"user_message": user_message}).get("is_prayer_times", False)
-
-    def classify_ticket(self, subject: str, body: str) -> dict:
-        return self._client._post("/v1/judge/classify-ticket", {"subject": subject, "body": body})
-
-    def classify_alert(self, event_type: str, event_details: str) -> dict:
-        return self._client._post("/v1/judge/classify-alert", {"event_type": event_type, "event_details": event_details})
-
-    def score_satisfaction(self, user_messages: list, assistant_messages: list) -> dict:
-        return self._client._post("/v1/judge/score-satisfaction", {"user_messages": user_messages, "assistant_messages": assistant_messages})
-
-    def sentiment(self) -> dict:
-        return self._client._get("/v1/judge/sentiment")
-
-
 class MeeDooClient:
     """
     Main client for the MeeDoo AI API.
@@ -388,7 +319,6 @@ class MeeDooClient:
         self.chat = _Chat(self)
         self.models = Models(self)
         self.usage = Usage(self)
-        self.judge = Judge(self)
 
     def _get_headers(self) -> dict:
         return {

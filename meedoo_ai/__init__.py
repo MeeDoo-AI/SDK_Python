@@ -25,8 +25,6 @@ from .models import (
     CreditsResponse,
     ConfigResponse,
     HealthResponse,
-    JudgeStatus,
-    JudgeResult,
 )
 from .exceptions import (
     MeeDooError,
@@ -37,7 +35,7 @@ from .exceptions import (
     APIError,
 )
 
-__version__ = "1.0.0"
+__version__ = "1.0.1"
 __all__ = [
     "MeeDooClient",
     "ChatCompletion",
@@ -48,8 +46,6 @@ __all__ = [
     "CreditsResponse",
     "ConfigResponse",
     "HealthResponse",
-    "JudgeStatus",
-    "JudgeResult",
     "MeeDooError",
     "AuthenticationError",
     "RateLimitError",

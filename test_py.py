@@ -23,11 +23,7 @@ print("\n=== Test 3: Think Mode ===")
 resp = client.chat.completions.create(model="meedoo:latest", messages=[{"role":"user","content":"What is 7*8?"}], think=True)
 print(f'AI says: {resp.content[:100]}')
 
-print("\n=== Test 4: MeeJudge ===")
-status = client.judge.status()
-print(f'Judge: enabled={status.enabled}, model={status.model}')
-
-print("\n=== Test 5: Credits ===")
+print("\n=== Test 4: Credits ===")
 c = client.usage.credits()
 print(f'Balance: EUR{c.credit_balance}')
 

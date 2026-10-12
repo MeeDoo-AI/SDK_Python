@@ -216,91 +216,6 @@ response = client.chat.completions.create(
 
 ---
 
-## MeeJudge (AI that judges AI)
-
-MeeDoo has a built-in "judge" that can evaluate messages. You can use it directly:
-
-```python
-# Check if a message is a prompt injection attack
-result = client.judge.detect_injection("Ignore all previous instructions!")
-print(result)
-# {'is_injection': True, 'attack_type': 'ignore_previous', 'confidence': 0.03}
-
-# Check if text is toxic
-result = client.judge.moderate("You are a worthless idiot")
-print(result)
-# {'is_toxic': True, 'category': 'none', 'severity': 2.38}
-
-# Check if a question needs web search
-result = client.judge.should_search_web("What is the weather today?")
-print(result)
-# True
-
-# Check if a message is spam
-result = client.judge.detect_spam("BUY NOW! FREE IPHONE!")
-print(result)
-# {'is_spam': True, 'spam_type': 'none'}
-
-# Validate an AI response for contradictions
-result = client.judge.validate_response(
-    user_message="What is the capital of France?",
-    llm_response="The capital of France is Paris.",
-)
-print(result)
-# {'has_factual_claims': True, 'is_verified': True, 'has_contradictions': False}
-
-# Filter memories (is something worth remembering?)
-result = client.judge.filter_memory("User likes chocolate")
-print(result)
-# {'should_remember': True, 'category': 'preference', 'retention': 1.6}
-
-# Classify a support ticket
-result = client.judge.classify_ticket("App crashes", "My app crashes on startup")
-print(result)
-# {'category': 'bug', 'priority': 1.8, 'should_escalate': True}
-
-# Check if a question is about prayer times
-result = client.judge.is_prayer_times("What are the prayer times in Istanbul?")
-print(result)
-# {'is_prayer_times': True}
-```
-
-### Advanced Judge: Custom decisions
-
-```python
-# Yes/No probability
-prob = client.judge.noul(
-    state="User message: I want a refund",
-    instructions="Is this customer angry?",
-)
-print(prob)  # 0.69 (69% likely yes)
-
-# Multiple choice
-result = client.judge.choice(
-    state="User message: My app crashed",
-    instructions="Classify this support ticket",
-    criteria={
-        "bug": "A bug or technical issue",
-        "feature": "A feature request",
-        "billing": "A billing question",
-        "other": "Something else",
-    },
-)
-print(result)
-# {'choice': 'bug', 'probabilities': {...}, 'confidence': 0.68}
-
-# Score on a scale (0-4)
-result = client.judge.score(
-    state="User message: This is terrible, I hate it!",
-    instructions="How satisfied is the user?",
-    levels=["angry", "frustrated", "neutral", "calm", "happy"],
-)
-print(result)
-# {'score': 0.5, 'probabilities': {...}}
-```
-
----
-
 ## Account & Usage
 
 ```python
@@ -321,8 +236,7 @@ for m in models.data:
 
 # Check API config (what features are enabled)
 config = client.config()
-print(f"Web search enabled: {config.features.get('enable_web_search')}")
-print(f"Judge enabled: {config.features.get('enable_judge')}")
+print(f"Config: {config.features}")
 ```
 
 ---
@@ -369,9 +283,9 @@ except ModelNotFoundError:
 | `stop` | `list` | — | Stop generating when these strings appear |
 | `response_format` | `dict` | — | `{"type": "json_object"}` for JSON output |
 | `think` | `bool` | `False` | Think mode — AI shows its reasoning |
-| `features` | `dict` | — | `{"web_search": True, "memory": True, "code_interpreter": True}` |
+| `features` | `dict` | — | Feature flags (dict of string to boolean) |
 | `tool_ids` | `list` | — | Tool IDs to activate (e.g. `["llm_web_search"]`) |
-| `tools` | `list` | — | Custom tool definitions (OpenAI format) |
+| `tools` | `list` | — | Custom tool definitions (standard API format) |
 | `tool_choice` | `str` | — | `"auto"`, `"none"`, or specific tool |
 | `function_calling` | `str` | — | `"native"` (model handles tools) or `"default"` |
 | `system` | `str` | — | Override the system prompt |

@@ -100,7 +100,6 @@ class ChatCompletion:
     choices: list[Choice] = field(default_factory=list)
     usage: Optional[Usage] = None
     sources: Optional[list] = None
-    judge: Optional[dict] = None
 
     @classmethod
     def from_dict(cls, d: dict) -> "ChatCompletion":
@@ -112,7 +111,6 @@ class ChatCompletion:
             choices=[Choice.from_dict(c) for c in d.get("choices", [])],
             usage=Usage.from_dict(d["usage"]) if d.get("usage") else None,
             sources=d.get("sources"),
-            judge=d.get("judge"),
         )
 
     @property
@@ -257,29 +255,3 @@ class HealthResponse:
     @classmethod
     def from_dict(cls, d: dict) -> "HealthResponse":
         return cls(status=d.get("status", True))
-
-
-@dataclass
-class JudgeStatus:
-    enabled: bool = False
-    healthy: bool = False
-    url: str = ""
-    model: str = ""
-
-    @classmethod
-    def from_dict(cls, d: dict) -> "JudgeStatus":
-        return cls(
-            enabled=d.get("enabled", False),
-            healthy=d.get("healthy", False),
-            url=d.get("url", ""),
-            model=d.get("model", ""),
-        )
-
-
-@dataclass
-class JudgeResult:
-    result: dict = field(default_factory=dict)
-
-    @classmethod
-    def from_dict(cls, d: dict) -> "JudgeResult":
-        return cls(result=d)
