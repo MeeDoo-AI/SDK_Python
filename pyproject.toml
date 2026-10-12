@@ -1,0 +1,36 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "meedoo-ai"
+version = "1.0.0"
+description = "Official MeeDoo AI Python SDK — Chat Completions, Models, MeeJudge, and more"
+readme = "README.md"
+license = {text = "MIT"}
+requires-python = ">=3.9"
+authors = [{name = "MeeDoo", email = "contact@meedoo.co"}]
+keywords = ["meedoo", "ai", "llm", "chat", "completions", "judge", "sdk"]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+]
+dependencies = ["requests>=2.28.0"]
+
+[project.urls]
+Homepage = "https://meedoo.co"
+Documentation = "https://meedoo.co/documentation/chat-completions"
+Repository = "https://github.com/meedoo-ai/meedoo-py"
+Issues = "https://github.com/meedoo-ai/meedoo-py/issues"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["meedoo_ai*"]
